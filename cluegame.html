@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mansion Mystery Escape</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        /* Styles largely the same as v26 */
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background-color: #2c1e3a;
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 15px;
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            background-color: #4a3a5a;
+            border: 4px solid #e0e0e0;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            padding: 1.5rem;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 950px;
+            text-align: center;
+            transition: all 0.5s ease-in-out;
+        }
+
+        .game-button {
+            font-family: 'Press Start 2P', cursive;
+            background-color: #7b5ea7;
+            color: #ffffff;
+            border: 2px solid #ffffff;
+            padding: 10px 15px;
+            margin: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 3px 3px 0px #3a2a4a;
+            display: inline-block;
+            min-width: 130px;
+            font-size: 0.9em;
+        }
+
+        .game-button:hover {
+            background-color: #9d7cc7;
+        }
+
+        .game-button:active {
+            transform: translate(1px, 1px);
+            box-shadow: 2px 2px 0px #3a2a4a;
+        }
+
+        .game-button:disabled {
+            background-color: #5a4a6a;
+            color: #a0a0a0;
+            cursor: not-allowed;
+            box-shadow: 2px 2px 0px #3a2a4a;
+            transform: translate(1px, 1px);
+        }
+
+        .character-button {
+            text-align: left;
+            padding: 12px;
+            width: 90%;
+            max-width: 350px;
+            margin: 5px auto;
+            display: block;
+        }
+
+        .character-button span {
+            display: block;
+            font-size: 0.7em;
+            margin-top: 5px;
+            color: #cccccc;
+        }
+
+        .back-button {
+            background-color: #5a4a6a;
+            margin-top: 20px;
+            font-size: 0.8em;
+            min-width: 100px;
+            padding: 8px 12px;
+        }
+
+        .back-button:hover {
+            background-color: #7b5ea7;
+        }
+
+        .hidden {
+            display: none;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease-in-out, visibility 0s 0.5s;
+        }
+
+        .visible {
+            display: block;
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .status-bar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0.5rem 0.8rem;
+            background-color: #3a2a4a;
+            border-radius: 8px;
+            font-size: 0.8em;
+        }
+
+        .status-left {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .status-left>div {
+            margin-right: 15px;
+            margin-bottom: 5px;
+        }
+
+        .status-right {
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        #lives-display {
+            display: flex;
+            align-items: center;
+        }
+
+        .heart-icon {
+            color: #ff6b6b;
+            margin-left: 4px;
+            font-size: 1.1em;
+            line-height: 1;
+        }
+
+        /* Story Screen with Choices */
+        .story-screen-content {
+            border: 2px dashed #7b5ea7;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 8px;
+            min-height: 200px;
+            text-align: left;
+        }
+
+        .story-screen-content p#story-room-description {
+            margin-bottom: 1rem;
+            font-style: italic;
+            color: #c0c0c0;
+        }
+
+        .story-screen-content p#story-character-segment {
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .story-screen-content .choices-container {
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+
+        .story-screen-content .choices-container h3 {
+            margin-bottom: 0.5rem;
+            font-size: 0.9em;
+            text-decoration: underline;
+        }
+
+        .choice-button {
+            display: block;
+            width: 80%;
+            max-width: 400px;
+            margin: 10px auto;
+            text-align: center;
+            background-color: #6a5a7a;
+        }
+
+        .choice-button:hover {
+            background-color: #8b7a9a;
+        }
+
+        .puzzle-area,
+        .actions-area {
+            border: 2px dashed #7b5ea7;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 8px;
+            min-height: 80px;
+            text-align: left;
+        }
+
+        .puzzle-area p {
+            margin-bottom: 10px;
+        }
+
+        .actions-area {
+            text-align: center;
+            min-height: auto;
+            padding: 0.5rem 1rem;
+        }
+
+        /* Container for ability buttons */
+        #ability-button-container {
+            display: inline-block;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+
+        #message-box {
+            position: fixed;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #ffcc00;
+            color: #333;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            font-size: 0.9em;
+            border: 2px solid #333;
+            text-align: center;
+            max-width: 90%;
+        }
+
+        .input-area {
+            margin-top: 10px;
+            display: flex;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        input[type="text"]#puzzle-input {
+            font-family: 'Press Start 2P', cursive;
+            padding: 8px;
+            border: 2px solid #7b5ea7;
+            background-color: #e0e0e0;
+            color: #2c1e3a;
+            border-radius: 5px;
+            margin: 0;
+            flex-grow: 1;
+            min-width: 150px;
+            font-size: 0.9em;
+            margin-right: 10px;
+            margin-bottom: 5px;
+        }
+
+        button#submit-button {
+            width: 110px;
+            margin: 0;
+            flex-shrink: 0;
+        }
+
+        /* Grid Styles */
+        .puzzle-grid {
+            display: grid;
+            gap: 3px;
+            margin-top: 10px;
+            justify-content: center;
+            border: 2px solid #7b5ea7;
+            padding: 3px;
+            background-color: #7b5ea7;
+        }
+
+        .puzzle-grid.grid-3x3 {
+            grid-template-columns: repeat(3, 35px);
+        }
+
+        .puzzle-grid.grid-4x4 {
+            grid-template-columns: repeat(4, 30px);
+        }
+
+        .puzzle-grid input {
+            width: 100%;
+            height: 30px;
+            text-align: center;
+            font-size: 1em;
+            padding: 0;
+            border: 1px solid #7b5ea7;
+            background-color: #e0e0e0;
+            color: #2c1e3a;
+        }
+
+        .puzzle-grid input.given {
+            background-color: #aaa;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .puzzle-grid input.ability-revealed {
+            background-color: #d0c0e0;
+            color: #2c1e3a;
+            font-style: italic;
+            font-weight: bold;
+        }
+
+        .grid-submit-container {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        /* Logic Grid Clue List Style */
+        .clue-list {
+            list-style-type: disc;
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .clue-list li {
+            margin-bottom: 5px;
+        }
+
+        .anagram-word {
+            font-size: 1.2em;
+            letter-spacing: 5px;
+            margin: 10px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .sequence-display {
+            font-size: 1.1em;
+            text-align: center;
+            margin: 10px 0;
+            font-weight: bold;
+            letter-spacing: 3px;
+        }
+
+        .link-home{
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+    </style>
+</head>
+
+<body>
+<a class="link-home" href="index.html">HOME PAGE</a>
+    <div id="game-container" class="game-container">
+
+        <div id="setup-screen" class="visible">
+            <h1 class="text-2xl mb-6">Mansion Mystery Escape</h1>
+            <p class="mb-4">Select Difficulty:</p>
+            <div>
+                <button class="game-button" onclick="selectDifficulty('easy')">Easy</button>
+                <button class="game-button" onclick="selectDifficulty('medium')">Medium</button>
+                <button class="game-button" onclick="selectDifficulty('hard')">Hard</button>
+            </div>
+        </div>
+
+        <div id="character-screen" class="hidden">
+            <h1 class="text-xl mb-6">Choose Your Investigator</h1>
+            <p class="mb-4">Each has a unique skill.</p>
+            <div><button class="game-button character-button" onclick="selectCharacter('Eleanor')">Eleanor
+                    Vance<span>Ability: Ciphers are slightly easier (shift reduced by 1, Med/Hard only).</span></button>
+            </div>
+            <div><button class="game-button character-button" onclick="selectCharacter('Silas')">Silas
+                    Blackwood<span>Ability: Gets better hints for Logic Grid puzzles.</span></button></div>
+            <div><button class="game-button character-button" onclick="selectCharacter('Arthur')">Arthur
+                    Pendelton<span>Ability: Starts with 2 extra minutes (Medium/Hard only).</span></button></div>
+            <div><button class="game-button character-button" onclick="selectCharacter('Beatrice')">Beatrice
+                    Holloway<span>Ability: First hint used is free.</span></button></div>
+            <div><button class="game-button character-button" onclick="selectCharacter('Jasper')">Jasper
+                    Thorne<span>Ability: Double or Nothing! Guess right for +1 min, wrong for -2 min (once per
+                        game).</span></button></div>
+            <div><button class="game-button character-button" onclick="selectCharacter('Agatha')">Agatha
+                    Croft<span>Ability: Anagram puzzles reveal one correct letter's position.</span></button></div>
+            <div class="mt-6"> <button class="game-button back-button" onclick="goBackToDifficulty()">Go Back</button>
+            </div>
+        </div>
+
+        <div id="story-screen" class="hidden">
+            <h2 class="text-xl mb-4">Location: <span id="story-location-name"></span></h2>
+            <div class="story-screen-content">
+                <p id="story-room-description">Loading location description...</p>
+                <p id="story-character-segment">Loading story segment...</p>
+                <div id="choices-container" class="choices-container">
+                    <h3>Which path will you take?</h3>
+                </div>
+            </div>
+        </div>
+
+        <div id="puzzle-screen" class="hidden">
+            <div class="status-bar">
+                <div class="status-left">
+                    <div>Room: <span id="current-room"></span></div>
+                    <div>Investigator: <span id="selected-char">None</span></div>
+                    <div>Hints Left: <span id="hints-left">0</span></div>
+                    <div id="lives-display">Lives: <span id="lives-left">3</span><span class="heart-icon">♥</span></div>
+                </div>
+                <div class="status-right">
+                    <span id="timer">--:--</span>
+                </div>
+            </div>
+            <div class="puzzle-area mb-4">
+                <h2 class="text-lg mb-2">Current Puzzle (<span id="puzzle-type"></span>)</h2>
+                <div id="puzzle-content">
+                    <p id="puzzle-text">Loading puzzle...</p>
+                </div>
+                <div class="input-area">
+                    <input type="text" id="puzzle-input" placeholder="Enter your answer">
+                    <button id="submit-button" class="game-button" onclick="checkAnswer()">Submit</button>
+                </div>
+                <div id="grid-submit-container" class="grid-submit-container"></div>
+            </div>
+            <div class="actions-area">
+                <button id="hint-button" class="game-button" onclick="useHint()">Use Hint</button>
+                <div id="ability-button-container" style="display: inline-block;"></div>
+            </div>
+        </div>
+
+        <div id="end-screen" class="hidden">
+            <h1 id="end-title" class="text-2xl mb-4">Game Over</h1>
+            <p id="end-message" class="mb-4">You failed to escape!</p>
+            <button class="game-button" onclick="restartGame()">Play Again?</button>
+        </div>
+
+    </div>
+
+    <div id="message-box" class="hidden"></div>
+
+    <script>
+        // --- Game Constants ---
+        const PUZZLES_TO_WIN_MAP = { easy: 4, medium: 5, hard: 6 };
+        const DIFFICULTY_LEVELS = { easy: 1, medium: 2, hard: 3 };
+        const TIMER_DURATIONS = { easy: -1, medium: 5 * 60, hard: 3 * 60 };
+        const STARTING_LIVES = 3;
+        const BASE_HINTS = { easy: 3, medium: 2, hard: 1 };
+
+        // --- Stage-Based Room Choices ---
+        const stageChoices = [ /* ... (Same as v14) ... */
+            { roomA: 'study', roomB: 'diningRoom' }, { roomA: 'kitchen', roomB: 'library' }, { roomA: 'ballroom', roomB: 'conservatory' }, { roomA: 'cellar', roomB: 'attic' }, { roomA: 'observatory', roomB: 'secretPassage' }, { roomA: 'tower', roomB: 'crypt' }
+        ];
+
+        // --- Puzzle Pool ---
+        const allPuzzles = { /* ... (Same puzzle data as v25) ... */
+            // Easy
+            'riddle1': { type: 'Riddle', difficulty: 1, text: 'I have cities, but no houses...', answer: 'map', hint: 'It\'s something flat...' },
+            'riddle2': { type: 'Riddle', difficulty: 1, text: 'What has an eye, but cannot see?', answer: 'needle', hint: 'It\'s often used for sewing.' },
+            'riddle3': { type: 'Riddle', difficulty: 1, text: 'What is full of holes but still holds water?', answer: 'sponge', hint: 'Think about cleaning.' },
+            'riddle5': { type: 'Riddle', difficulty: 1, text: 'What comes once in a minute...?', answer: 'letter m', hint: 'Focus on the words themselves.' },
+            'riddle6': { type: 'Riddle', difficulty: 1, text: 'What has one head, one foot, and four legs?', answer: 'bed', hint: 'Something you sleep on.' },
+            'riddle8': { type: 'Riddle', difficulty: 1, text: 'What has keys but opens no locks?', answer: 'piano', hint: 'A musical instrument.' },
+            'riddle9': { type: 'Riddle', difficulty: 1, text: 'What can you catch, but not throw?', answer: 'cold', hint: 'An illness.' },
+            'riddle13': { type: 'Riddle', difficulty: 1, text: 'What belongs to you, but other people use it more than you?', answer: 'your name', hint: 'It\'s how people refer to you.' },
+            'riddle14': { type: 'Riddle', difficulty: 1, text: 'What building has the most stories?', answer: 'library', hint: 'Think about books.' },
+            'riddle18': { type: 'Riddle', difficulty: 1, text: 'What goes up but never comes down?', answer: 'your age', hint: 'It only increases.' },
+            'riddle21': { type: 'Riddle', difficulty: 1, text: 'What has a thumb and four fingers but is not alive?', answer: 'glove', hint: 'You wear it on your hand.' },
+            'riddle22': { type: 'Riddle', difficulty: 1, text: 'What is always coming but never arrives?', answer: 'tomorrow', hint: 'Think about days.' },
+            'anagram1': { type: 'Anagram', difficulty: 1, scrambled: 'SILENT', text: 'Unscramble: SILENT', answer: 'listen', hint: 'It\'s something you do with your ears.' },
+            'anagram2': { type: 'Anagram', difficulty: 1, scrambled: 'POST', text: 'Unscramble: POST', answer: 'stop', hint: 'A type of traffic sign.' },
+            'anagram5': { type: 'Anagram', difficulty: 1, scrambled: 'CARE', text: 'Unscramble: CARE', answer: 'race', hint: 'A competition of speed.' },
+            'anagram8': { type: 'Anagram', difficulty: 1, scrambled: 'HEART', text: 'Unscramble: HEART', answer: 'earth', hint: 'The planet we live on.' },
+            'anagram9': { type: 'Anagram', difficulty: 1, scrambled: 'DUSTY', text: 'Unscramble: DUSTY', answer: 'study', hint: 'A room for reading.' },
+            'anagram13': { type: 'Anagram', difficulty: 1, scrambled: 'NIGHT', text: 'Unscramble: NIGHT', answer: 'thing', hint: 'An object or concept.' },
+            'logic1': { type: 'LogicGrid', difficulty: 1, setup: 'Three friends (Alex, Ben, Chloe) each have one pet (cat, dog, fish).', clues: ['Alex is allergic to cats.', 'Chloe\'s pet cannot live outside of water.'], question: 'Who owns the dog?', answer: 'alex', hint: 'Chloe must own the fish. Since Alex can\'t have the cat...', strongHint: 'Chloe owns the fish.' },
+            'liar1': { type: 'Liar', difficulty: 1, setup: 'One lies, one tells truth...\nA says: "B tells truth."\nB says: "We both lie."\nWho is lying (A or B)?', answer: 'a', hint: 'If A tells the truth...' },
+            'liar4': { type: 'Liar', difficulty: 1, setup: 'Guard 1: "Exit is behind my door."\nGuard 2: "Exit is not behind my door."\nOne lies, one tells truth. Whose door hides the exit (1 or 2)?', answer: '2', hint: 'If Guard 1 is truthful...' },
+            'liar5': { type: 'Liar', difficulty: 1, setup: 'Two twins. One always lies, one always tells the truth.\nTwin P says: "My sibling tells the truth."\nWhich twin is lying (P or Q)?', answer: 'p', hint: 'Consider what happens if P is telling the truth.' },
+            'liar8': { type: 'Liar', difficulty: 1, setup: 'Box A: "The prize is in Box B."\nBox B: "The prize is not in here."\nOne box lies, one tells the truth. Where is the prize (A or B)?', answer: 'b', hint: 'If Box A tells the truth, then Box B must also tell the truth...' },
+            // Medium
+            'riddle4': { type: 'Riddle', difficulty: 2, text: 'What has to be broken before you can use it?', answer: 'egg', hint: 'It comes in a shell.' },
+            'riddle7': { type: 'Riddle', difficulty: 2, text: 'What is always in front of you but can’t be seen?', answer: 'future', hint: 'Think about time.' },
+            'riddle10': { type: 'Riddle', difficulty: 2, text: 'What is black when it’s clean and white when it’s dirty?', answer: 'chalkboard', hint: 'Used in classrooms long ago.' },
+            'riddle11': { type: 'Riddle', difficulty: 2, text: 'What can travel around the world while staying in a corner?', answer: 'stamp', hint: 'Found on letters.' },
+            'riddle15': { type: 'Riddle', difficulty: 2, text: 'What has cities, but no houses; forests, but no trees; and water, but no fish?', answer: 'map', hint: 'A representation of places.' },
+            'riddle16': { type: 'Riddle', difficulty: 2, text: 'What question can you never answer yes to?', answer: 'are you asleep yet', hint: 'Think about the state of being asked.' },
+            'riddle19': { type: 'Riddle', difficulty: 2, text: 'What has an neck without a head, and a body without legs?', answer: 'bottle', hint: 'It holds liquids.' },
+            'riddle23': { type: 'Riddle', difficulty: 2, text: 'What is full of keys but cannot open locks?', answer: 'piano', hint: 'Same answer as another riddle, different phrasing.' },
+            'riddle24': { type: 'Riddle', difficulty: 2, text: 'What can you keep after giving it to someone?', answer: 'your word', hint: 'Related to promises.' },
+            'riddle26': { type: 'Riddle', difficulty: 2, text: 'David’s father has three sons: Snap, Crackle, and _____?', answer: 'david', hint: 'Read the question carefully.' },
+            'anagram3': { type: 'Anagram', difficulty: 2, scrambled: 'CINEMA', text: 'Unscramble: CINEMA', answer: 'iceman', hint: 'A historical preserved human.' },
+            'anagram6': { type: 'Anagram', difficulty: 2, scrambled: 'DEBIT CARD', text: 'Unscramble: DEBIT CARD', answer: 'bad credit', hint: 'A financial status.' },
+            'anagram10': { type: 'Anagram', difficulty: 2, scrambled: 'DESSERT', text: 'Unscramble: DESSERT', answer: 'stressed', hint: 'How you might feel solving puzzles.' },
+            'anagram11': { type: 'Anagram', difficulty: 2, scrambled: 'LISTEN', text: 'Unscramble: LISTEN', answer: 'silent', hint: 'Without noise.' },
+            'anagram14': { type: 'Anagram', difficulty: 2, scrambled: 'DANGER', text: 'Unscramble: DANGER', answer: 'garden', hint: 'A place where plants grow.' },
+            'cipher1': { type: 'Cipher', difficulty: 2, shift: 3, text: 'Decode: VHFUHW SDVVDJH', answer: 'secret passage', hint: 'Caesar cipher, shift backward.' },
+            'cipher2': { type: 'Cipher', difficulty: 2, shift: 5, text: 'Decode: YMJ PJD NX MNIIJS', answer: 'the key is hidden', hint: 'Caesar cipher, shift forward by 5.' },
+            'cipher4': { type: 'Cipher', difficulty: 2, shift: 2, text: 'Decode: VJG EQORWUVGT KU CNQPG', answer: 'the computer is alone', hint: 'Caesar cipher, shift is 2.' },
+            'logic2': { type: 'LogicGrid', difficulty: 2, setup: 'Four siblings (Eve, Fred, Greg, Holly) are different ages (7, 8, 9, 10).', clues: ['Fred is younger than Greg.', 'Eve is older than Holly, but younger than Fred.', 'Greg is not the oldest.'], question: 'How old is Holly?', answer: '7', hint: 'Order them by age based on the clues.', strongHint: 'Eve must be 8, Fred must be 9.' },
+            'liar2': { type: 'Liar', difficulty: 2, setup: 'Alice: "Bob lies."\nBob: "Charlie lies."\nCharlie: "Both A & B lie."\nOnly one tells truth. Who is it (Alice, Bob, or Charlie)?', answer: 'bob', hint: 'Consider Charlie\'s statement first.' },
+            'liar6': { type: 'Liar', difficulty: 2, setup: 'Three chests: Gold, Silver, Lead.\nGold says: "Key is not here."\nSilver says: "Key is in Gold."\nLead says: "Key is not here."\nExactly one chest lies. Where is the key (Gold, Silver, or Lead)?', answer: 'lead', hint: 'If Silver tells the truth, Gold must lie (meaning key IS in Gold), and Lead must tell the truth. Does this fit?' },
+            'liar9': { type: 'Liar', difficulty: 2, setup: 'You meet two people, A and B. One is a Knight (truth), one is a Knave (lies).\nA says: "We are both Knaves."\nWhat are A and B?', answer: 'a is knave b is knight', hint: 'Can A be a Knight? If so, his statement "We are both Knaves" would be false...' },
+            // Hard
+            'riddle12': { type: 'Riddle', difficulty: 3, text: 'I speak without a mouth and hear without ears...', answer: 'echo', hint: 'Related to sound reflection.' },
+            'riddle17': { type: 'Riddle', difficulty: 3, text: 'What is seen in the middle of March and April...?', answer: 'letter r', hint: 'Look closely at the words.' },
+            'riddle20': { type: 'Riddle', difficulty: 3, text: 'What disappears as soon as you say its name?', answer: 'silence', hint: 'Speaking breaks it.' },
+            'riddle25': { type: 'Riddle', difficulty: 3, text: 'What can you hold in your left hand but never in your right hand?', answer: 'your right elbow', hint: 'Think about your body.' },
+            'riddle27': { type: 'Riddle', difficulty: 3, text: 'What is it that lives if it is fed, and dies if you give it a drink?', answer: 'fire', hint: 'Think about elements.' },
+            'cipher3': { type: 'Cipher', difficulty: 3, shift: 7, text: 'Decode: AOL ZLSYLA PZ ISPUKULZZ', answer: 'the secret is blindness', hint: 'Caesar cipher, shift is 7.' },
+            'cipher5': { type: 'Cipher', difficulty: 3, shift: 13, text: 'Decode: GUR DHVPX OEBJA SBK WHZCF BIRE GUR YNML QBT', answer: 'the quick brown fox jumps over the lazy dog', hint: 'ROT13 cipher.' },
+            'sequence1': { type: 'Sequence', difficulty: 3, sequence: [1, 4, 9, 16, 25], text: 'Next number: 1, 4, 9, 16, 25, ?', answer: '36', hint: 'Square numbers.' },
+            'sequence2': { type: 'Sequence', difficulty: 3, sequence: ['A', 'C', 'F', 'J', 'O'], text: 'Next letter: A, C, F, J, O, ?', answer: 'u', hint: 'Gaps increase.' },
+            'sequence3': { type: 'Sequence', difficulty: 3, sequence: [2, 3, 5, 7, 11], text: 'Next number: 2, 3, 5, 7, 11, ?', answer: '13', hint: 'Prime numbers.' },
+            'anagram4': { type: 'Anagram', difficulty: 3, scrambled: 'DORMITORY', text: 'Unscramble: DORMITORY', answer: 'dirty room', hint: 'Two-word phrase.' },
+            'anagram7': { type: 'Anagram', difficulty: 3, scrambled: 'PRESBYTERIAN', text: 'Unscramble: PRESBYTERIAN', answer: 'britney spears', hint: 'Famous pop singer.' },
+            'anagram12': { type: 'Anagram', difficulty: 3, scrambled: 'A DECIMAL POINT', text: 'Unscramble: A DECIMAL POINT', answer: 'im a dot in place', hint: 'A phrase describing its function.' },
+            'logic3': { type: 'LogicGrid', difficulty: 3, setup: 'Three colleagues (Smith, Jones, Robin) have jobs (Doctor, Lawyer, Chef).', clues: ['Smith is not the Lawyer.', 'Jones is the Chef.', 'Robin is female.', 'The Doctor is male.'], question: 'What is Smith\'s job?', answer: 'doctor', hint: 'Use elimination. Jones is the Chef. The Doctor is male, Robin is female...', strongHint: 'Since Jones is the Chef and Robin cannot be the Doctor (due to gender mismatch), Robin must be the Lawyer.' },
+            'liar3': { type: 'Liar', difficulty: 3, setup: 'One guilty, one truth-teller.\nX: "Y is guilty."\nY: "Z is guilty."\nZ: "I am not guilty."\nWho is guilty (X, Y, or Z)?', answer: 'z', hint: 'Assume each tells truth...' },
+            'liar7': { type: 'Liar', difficulty: 3, setup: 'Island of Knights (always tell truth) & Knaves (always lie).\nYou meet A & B.\nA says: "At least one of us is a Knave."\nWhat are A and B?', answer: 'a is knight b is knave', hint: 'Can A be a Knave? If so, his statement "At least one is a Knave" would be false, meaning BOTH are Knights - a contradiction.' },
+        };
+
+        // --- Mansion Layout (No puzzles needed) ---
+        const mansionLayout = { /* ... (Same layout as v19) ... */
+            'entranceHall': { name: "Entrance Hall", description: "A grand, dusty entrance hall. The heavy oak front door is sealed tight. Faint whispers seem to rise from the walls themselves." },
+            'study': { name: "Study", description: "A quiet study lined with bookshelves filled with ancient-looking tomes. A large mahogany desk sits in the center." },
+            'diningRoom': { name: "Dining Room", description: "A long, dark wood table dominates the room, set with tarnished silverware. A large, unlit fireplace is on the far wall." },
+            'kitchen': { name: "Kitchen", description: "A cold, metallic kitchen. Pots and pans hang eerily still. There's a faint, unpleasant smell." },
+            'library': { name: "Library", description: "Towering shelves reach the ceiling, packed with books. Dust motes dance in the dim light filtering through a high window." },
+            'ballroom': { name: "Ballroom", description: "A vast, empty ballroom. A shattered chandelier lies on the parquet floor. Faint music seems to echo." },
+            'conservatory': { name: "Conservatory", description: "Wilted, exotic plants fill this glass-roofed room. The air is humid and smells of decay." },
+            'cellar': { name: "Cellar", description: "Damp stone walls line this dark cellar. Barrels and crates are stacked in the shadows." },
+            'attic': { name: "Attic", description: "Dusty sheets cover forgotten furniture. Cobwebs hang thick in the air. A single window looks out onto darkness." },
+            'observatory': { name: "Observatory", description: "A large telescope points towards the perpetually stormy sky visible through the domed ceiling." },
+            'secretPassage': { name: "Secret Passage", description: "A narrow, hidden passage behind a bookshelf. It feels cold and unused." },
+            'tower': { name: "Tower Room", description: "A circular room at the top of a narrow staircase, offering a windswept view of the storm outside." },
+            'crypt': { name: "Crypt", description: "An unnervingly cold crypt below the cellar. Stone sarcophagi line the walls." }
+        };
+
+        // --- Game State ---
+        // ... (Same state variables as v19) ...
+        let currentDifficulty = null; let currentDifficultyLevel = 0;
+        let selectedCharacter = null; let characterAbility = null; let characterData = null;
+        let hintsLeft = 0; let timerInterval = null; let timeLeft = 0;
+        let currentRoomId = 'entranceHall';
+        let lives = STARTING_LIVES;
+        let puzzlesSolvedCount = 0;
+        let puzzlesNeededToWin = 3;
+        let firstHintUsed = false;
+        let solvedPuzzleIds = [];
+        let currentPuzzle = null;
+        let gamePuzzles = [];
+        let jasperAbilityUsed = false;
+
+        // --- DOM Elements ---
+        // ... (Same element references as v19) ...
+        const setupScreen = document.getElementById('setup-screen');
+        const characterScreen = document.getElementById('character-screen');
+        const storyScreen = document.getElementById('story-screen');
+        const puzzleScreen = document.getElementById('puzzle-screen');
+        const endScreen = document.getElementById('end-screen');
+        const hintsLeftSpan = document.getElementById('hints-left');
+        const livesLeftSpan = document.getElementById('lives-left');
+        const timerSpan = document.getElementById('timer');
+        const storyLocationName = document.getElementById('story-location-name');
+        const storyRoomDescription = document.getElementById('story-room-description');
+        const storyCharacterSegment = document.getElementById('story-character-segment');
+        const choicesContainer = document.getElementById('choices-container');
+        const puzzleContentDiv = document.getElementById('puzzle-content');
+        const puzzleInput = document.getElementById('puzzle-input');
+        const submitButton = document.getElementById('submit-button');
+        const inputAreaDiv = document.querySelector('.input-area');
+        const hintButton = document.getElementById('hint-button');
+        const puzzleTypeSpan = document.getElementById('puzzle-type');
+        const currentRoomSpan = document.getElementById('current-room');
+        const selectedCharSpan = document.getElementById('selected-char');
+        const endTitle = document.getElementById('end-title');
+        const endMessage = document.getElementById('end-message');
+        const messageBox = document.getElementById('message-box');
+        const gridSubmitContainer = document.getElementById('grid-submit-container');
+        const abilityButtonContainer = document.getElementById('ability-button-container');
+
+
+        // --- Character Data (Ensuring full stories are present) ---
+        const characters = {
+            'Eleanor': { name: 'Eleanor Vance', ability: 'easier_cipher', story: ["As Eleanor Vance, renowned historian, you were deciphering ancient texts in the mansion's dusty library when the doors slammed shut. The air grew cold, the silence heavy. Escape seems paramount.", "Solving that felt like piecing together a fragmented manuscript. Each correct answer illuminates the path slightly, revealing more of this place's hidden history.", "The symbols unlocked by that puzzle... they match markings found in texts describing the 'Architects of Reason', a secretive group obsessed with logic and order.", "This mansion is more than just bricks and mortar; it's a testament to the Architects' philosophy. Every challenge overcome likely disarms a layer of their intricate design.", "Could the final 'test' be near? The historical accounts spoke of a central chamber where the Architects debated the nature of reality itself. Reaching it might be the key.", "The path narrows, the air thickens. This feels like the heart of the mansion's enigma. One final push!"] },
+            'Silas': { name: 'Silas Blackwood', ability: 'logic_grid_hint', story: ["Silas Blackwood, specialist in arcane locks and forgotten mechanisms. You were examining the unique wards on this mansion when they flared to life, sealing you inside. A professional challenge, or something more sinister?", "Intricate, but solvable. The design philosophy resembles the 'Gilded Cage' style – meant less to keep people out, and more to keep something *in*. Or someone.", "That sequence... it's a variation of a tumbler system my great-aunt, a notorious safe-cracker, used to boast about. Seems lockpicking runs in the family, unfortunately.", "The complexity is increasing. These aren't just locks; they're tests of deduction. Each solved puzzle feels like turning a key in a multi-stage lock.", "Almost there. The final mechanism feels... different. Less mechanical, more conceptual. Like the lock isn't on a door, but on reality itself.", "This final challenge... it resonates with the core warding scheme. Break this, and the whole structure should unlock."] },
+            'Arthur': { name: 'Arthur Pendelton', ability: 'more_time_2', story: ["Arthur Pendelton, retired adventurer. Lured by whispers of an unsolvable labyrinth, you couldn't resist one more challenge. Now, the mansion itself is the maze, and the clock is ticking.", "Bah! Child's play compared to the Pit of Endless Echoes! Still, mustn't get complacent. Keep moving, keep solving!", "This reminds me of the Sultan's Gauntlet in Zanzibar - misdirection and hidden clues. Always check the obvious, then check it again!", "Felt a tremor that time! Like the whole place is rearranging itself. Or maybe that's just my stomach rumbling. Need to escape for a decent meal!", "The final hurdle! Smells like victory... or possibly mildew. Either way, time to show this house who's boss!", "Right then! The final puzzle before freedom and a stiff drink! Let's get cracking!"] },
+            'Beatrice': { name: 'Beatrice Holloway', ability: 'free_first_hint', story: ["Beatrice Holloway, investigative journalist. Your source claimed this mansion held the key to a century-old disappearance. You slipped past security, but now you're part of the story.", "That puzzle revealed... nothing tangible. Just a click somewhere distant. Is this mansion observing me? Documenting my progress?", "The clues seem almost *too* convenient. Like breadcrumbs left by an unseen hand. Am I solving a mystery or participating in a performance?", "Found a hidden panel behind that riddle's solution, containing only a single, faded photograph of people I don't recognize. Another dead end, or a vital clue?", "The narrative is converging. The puzzles, the layout... it all points towards a central revelation. Time to find the headline.", "This must be it. The final piece of the puzzle that explains everything. Just need to solve it before the deadline..."] },
+            'Jasper': { name: 'Jasper Thorne', ability: 'double_or_nothing', story: ["Jasper Thorne, professional gambler. You heard this mansion was the site of legendary, high-stakes games. You came looking for action and maybe an artifact to pawn. You found a game, alright, but the stakes are higher than you thought.", "Easy money! That puzzle barely made me break a sweat. Hope the next one offers a bit more challenge... and maybe a hidden safe.", "Alright, this one required some calculation. Like knowing when to hold 'em, when to fold 'em. What are the odds this next door leads somewhere useful?", "Felt like hitting an inside straight! But the house always has another trick up its sleeve. Gotta stay sharp, play the percentages.", "This is it, the final round. All chips in. One more correct move and I walk away with the grand prize: my life.", "The house is showing its final hand. Time to see if my luck holds for the big win!"] },
+            'Agatha': { name: 'Agatha Croft', ability: 'anagram_reveal', story: ["Agatha Croft, renowned puzzle designer. You received an anonymous invitation: 'Test your wits against the ultimate puzzle box.' Intrigued, you entered. Now, the box has closed around you.", "Hmm, elegant solution, but flawed logic in the setup. A classic rookie mistake in puzzle design. Still, it served its purpose.", "Interesting use of spatial reasoning there. The designer clearly understands flow, but perhaps relies too heavily on certain tropes.", "Aha! A meta-puzzle, referencing an earlier solution. Clever. It shows a developing complexity. I wonder who designed this place?", "The final construct. It seems to integrate all previous puzzle themes. A comprehensive test. Let's see if the execution matches the ambition.", "Yes, the final lock. Beautifully complex. It would be a shame to break it, but escape takes precedence."] }
+        };
+
+
+        // --- Helper Functions ---
+        function normalizeAnswer(answer) { /* ... (same as v11) ... */
+            if (typeof answer !== 'string') return ''; let normalized = answer.trim().toLowerCase(); if (normalized.startsWith('a ')) { normalized = normalized.substring(2).trim(); } else if (normalized.startsWith('an ')) { normalized = normalized.substring(3).trim(); } else if (normalized.startsWith('the ')) { normalized = normalized.substring(4).trim(); } return normalized;
+        }
+
+        // --- Screen Transition Functions ---
+        function showScreen(screenToShow) { /* ... (same as v11) ... */
+            const screens = [setupScreen, characterScreen, storyScreen, puzzleScreen, endScreen];
+            screens.forEach(screen => { if (screen === screenToShow) { screen.classList.replace('hidden', 'visible'); } else { screen.classList.replace('visible', 'hidden'); } });
+            console.log("Showing screen:", screenToShow.id);
+        }
+        // Updated showStoryScreen to pause timer
+        function showStoryScreen() { /* ... (same as v19) ... */
+            clearInterval(timerInterval); timerInterval = null; console.log("Timer paused for story screen."); displayCurrentRoomInfoAndChoices(); showScreen(storyScreen);
+        }
+        // Updated showPuzzleScreen to resume timer, update status bar, and manage Jasper's button
+        function showPuzzleScreen() { /* ... (same as v27) ... */
+            if (currentPuzzle) {
+                currentRoomSpan.textContent = mansionLayout[currentRoomId]?.name || currentRoomId;
+                abilityButtonContainer.innerHTML = ''; // Clear previous button
+                if (characterAbility === 'double_or_nothing') {
+                    const donButton = document.createElement('button');
+                    donButton.id = 'don-button'; donButton.className = 'game-button';
+                    donButton.textContent = 'Double or Nothing!'; donButton.onclick = useDoubleOrNothing;
+                    donButton.disabled = jasperAbilityUsed;
+                    if (jasperAbilityUsed) { donButton.textContent = 'DoN Used'; }
+                    abilityButtonContainer.appendChild(donButton);
+                }
+                showScreen(puzzleScreen);
+                startTimer();
+            } else {
+                console.error("showPuzzleScreen called but no current puzzle is loaded!");
+                showMessage("Something went wrong trying to load the next puzzle.");
+                showStoryScreen();
+            }
+        }
+        function goBackToDifficulty() { /* ... (same as v11) ... */
+            console.log("Going back to difficulty selection."); showScreen(setupScreen);
+        }
+
+        // --- Game Logic ---
+        function selectDifficulty(difficulty) { /* ... (same as v11) ... */
+            console.log(`Difficulty selected: ${difficulty}`); currentDifficulty = difficulty; currentDifficultyLevel = DIFFICULTY_LEVELS[difficulty]; showScreen(characterScreen);
+        }
+        function selectCharacter(charKey) { /* ... (same as v11) ... */
+            characterData = characters[charKey]; selectedCharacter = characterData.name; characterAbility = characterData.ability; console.log(`Character selected: ${selectedCharacter}, Ability: ${characterAbility}`); selectedCharSpan.textContent = selectedCharacter; startGame();
+        }
+        // Updated startGame to reset Jasper's ability state
+        function startGame() { /* ... (same as v27) ... */
+            console.log(`Starting game: Difficulty=${currentDifficulty}, Character=${selectedCharacter}`);
+            currentRoomId = 'entranceHall';
+            puzzlesSolvedCount = 0;
+            solvedPuzzleIds = [];
+            firstHintUsed = false;
+            currentPuzzle = null;
+            lives = STARTING_LIVES;
+            jasperAbilityUsed = false; // Reset Jasper's ability state
+            clearInterval(timerInterval);
+            timerInterval = null;
+
+            puzzlesNeededToWin = PUZZLES_TO_WIN_MAP[currentDifficulty];
+            console.log(`Puzzles needed to win: ${puzzlesNeededToWin}`);
+
+            gamePuzzles = Object.entries(allPuzzles)
+                .filter(([id, puzzle]) => puzzle.difficulty <= currentDifficultyLevel)
+                .map(([id, puzzle]) => ({ ...puzzle, id: id }));
+            console.log(`Created game pool with ${gamePuzzles.length} puzzles for difficulty level ${currentDifficultyLevel}`);
+
+            timeLeft = TIMER_DURATIONS[currentDifficulty];
+            if (currentDifficulty === 'easy') { hintsLeft = BASE_HINTS['easy']; }
+            else if (currentDifficulty === 'medium') { hintsLeft = BASE_HINTS['medium']; }
+            else { hintsLeft = BASE_HINTS['hard']; }
+            applyCharacterAbilities(); // Apply bonuses AFTER base values set
+
+            hintsLeftSpan.textContent = hintsLeft;
+            livesLeftSpan.textContent = lives;
+            hintButton.disabled = (hintsLeft <= 0 && characterAbility !== 'free_first_hint');
+
+            updateTimerDisplay();
+            showStoryScreen();
+        }
+
+        // Updated displayCurrentRoomInfoAndChoices to log story segment length
+        function displayCurrentRoomInfoAndChoices() {
+            const room = mansionLayout[currentRoomId];
+            if (!room) { /* ... (error handling) ... */ return; }
+
+            storyLocationName.textContent = room.name;
+            storyRoomDescription.textContent = room.description;
+            // Don't update puzzle screen status bar here
+
+            // Display character story segment based on solved count
+            const storySegment = characterData.story[puzzlesSolvedCount] || `Having solved ${puzzlesSolvedCount} puzzles, ${selectedCharacter} is in the ${room.name}, considering the next step...`;
+
+            // *** ADDED LOGGING HERE ***
+            console.log('Story Segment Length:', storySegment.length, 'Content:', storySegment);
+            // **************************
+
+            storyCharacterSegment.textContent = storySegment; // Assign the full segment
+            console.log(`Displaying room ${currentRoomId} info (Stage ${puzzlesSolvedCount})`);
+
+            // Display room choices
+            choicesContainer.innerHTML = '<h3>Which path will you take?</h3>';
+            const currentStageIndex = puzzlesSolvedCount;
+            if (currentStageIndex < stageChoices.length) {
+                const choices = stageChoices[currentStageIndex];
+                const roomA_Id = choices.roomA; const roomB_Id = choices.roomB;
+                const roomA_Name = mansionLayout[roomA_Id]?.name || roomA_Id;
+                const roomB_Name = mansionLayout[roomB_Id]?.name || roomB_Id;
+                const buttonA = document.createElement('button');
+                buttonA.className = 'game-button choice-button';
+                buttonA.textContent = `Investigate the ${roomA_Name}`;
+                buttonA.onclick = () => chooseNextRoom(roomA_Id);
+                choicesContainer.appendChild(buttonA);
+                const buttonB = document.createElement('button');
+                buttonB.className = 'game-button choice-button';
+                buttonB.textContent = `Explore the ${roomB_Name}`;
+                buttonB.onclick = () => chooseNextRoom(roomB_Id);
+                choicesContainer.appendChild(buttonB);
+            } else {
+                choicesContainer.innerHTML += '<p>The final challenge awaits...</p>';
+                console.log("Reached end of defined stage choices.");
+            }
+        }
+        function chooseNextRoom(targetRoomId) { /* ... (same as v19) ... */
+            console.log(`Player chose to proceed towards room: ${targetRoomId}`);
+            currentRoomId = targetRoomId; // Set the room context for the upcoming puzzle
+            if (puzzlesSolvedCount < puzzlesNeededToWin) {
+                if (loadNextRandomPuzzle()) { showPuzzleScreen(); } // Load puzzle then show screen
+                else { console.error("Failed to load a suitable puzzle after choosing room!"); showMessage("The mansion's challenges fade unexpectedly..."); showStoryScreen(); }
+            } else { console.warn("chooseNextRoom called but puzzle target already met."); gameOver(true); }
+        }
+        // Updated loadNextRandomPuzzle to apply Eleanor's ability
+        function loadNextRandomPuzzle() { /* ... (same logic as v27) ... */
+            const unsolvedPuzzles = gamePuzzles.filter(p => !solvedPuzzleIds.includes(p.id));
+            if (unsolvedPuzzles.length === 0) { console.error("No unsolved puzzles left in the game pool!"); return false; }
+            const randomIndex = Math.floor(Math.random() * unsolvedPuzzles.length);
+            const selectedPuzzleData = unsolvedPuzzles[randomIndex];
+            currentPuzzle = { ...selectedPuzzleData, solved: false };
+            console.log("Loading random puzzle:", currentPuzzle.id, currentPuzzle.type);
+            if (currentPuzzle.type === 'Cipher' && characterAbility === 'easier_cipher' && currentPuzzle.shift > 1) {
+                currentPuzzle.shift -= 1; currentPuzzle.hint = `Caesar cipher. Hint: The shift is ${currentPuzzle.shift}.`; console.log("Applied Eleanor's ability: Cipher shift reduced to", currentPuzzle.shift);
+            }
+            displayPuzzle(currentPuzzle);
+            puzzleTypeSpan.textContent = currentPuzzle.type;
+            return true;
+        }
+        // Updated applyCharacterAbilities (removed Eleanor's hint bonus)
+        function applyCharacterAbilities() { /* ... (same logic as v27) ... */
+            console.log("Applying static abilities:", characterAbility);
+            switch (characterAbility) {
+                case 'more_time_2': if (timeLeft > 0) timeLeft += 2 * 60; console.log("+2 Min applied to initial time"); break;
+                default: break;
+            }
+        }
+
+        // Removed applyJasperMagicSquareReveal
+
+        // Updated startTimer to handle pausing/resuming
+        function startTimer() { /* ... (same logic as v19) ... */
+            if (timeLeft <= 0 || timerInterval !== null) { if (timerInterval !== null) console.log("Timer already running."); else console.log("No timer needed or time is zero."); return; }
+            console.log("Timer started/resumed.");
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval); timerInterval = null; timerSpan.textContent = "00:00";
+                    gameOver(false, 'time'); return;
+                }
+                timeLeft--; updateTimerDisplay();
+            }, 1000);
+        }
+        function updateTimerDisplay() { /* ... (same logic as v19) ... */
+            if (timeLeft < 0) { timerSpan.textContent = "No Timer"; return; }
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerSpan.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        /** Updated displayPuzzle for Logic Grids */
+        function displayPuzzle(puzzle) { /* ... (same logic as v25) ... */
+            puzzleContentDiv.innerHTML = '';
+            let requiresTextInput = true;
+            let requiresGridSubmit = false;
+            const textElement = document.createElement('p');
+            textElement.id = 'puzzle-text';
+            if (puzzle.type === 'LogicGrid' && puzzle.setup) {
+                textElement.textContent = puzzle.setup;
+                puzzleContentDiv.appendChild(textElement);
+                if (puzzle.clues && puzzle.clues.length > 0) {
+                    const clueList = document.createElement('ul');
+                    clueList.className = 'clue-list';
+                    puzzle.clues.forEach(clue => { const li = document.createElement('li'); li.textContent = clue; clueList.appendChild(li); });
+                    puzzleContentDiv.appendChild(clueList);
+                }
+                const questionElement = document.createElement('p');
+                questionElement.id = 'puzzle-question';
+                questionElement.textContent = puzzle.question || "Solve the logic puzzle.";
+                questionElement.style.fontWeight = 'bold';
+                puzzleContentDiv.appendChild(questionElement);
+            } else {
+                textElement.textContent = puzzle.text || puzzle.setup || '';
+                if (puzzle.type === 'Liar') { textElement.style.whiteSpace = 'pre-wrap'; }
+                puzzleContentDiv.appendChild(textElement);
+            }
+            switch (puzzle.type) {
+                case 'Riddle': case 'Liar': case 'Cipher': case 'Sequence': case 'LogicGrid':
+                    requiresTextInput = true;
+                    if (puzzle.type === 'Sequence' && puzzle.sequence) {
+                        const sequenceDisp = document.createElement('p'); sequenceDisp.className = 'sequence-display';
+                        sequenceDisp.textContent = puzzle.sequence.join(', ') + ', ?'; puzzleContentDiv.appendChild(sequenceDisp);
+                    } break;
+                case 'Anagram':
+                    requiresTextInput = true;
+                    const anagramWord = document.createElement('p'); anagramWord.className = 'anagram-word';
+                    anagramWord.textContent = puzzle.scrambled; puzzleContentDiv.appendChild(anagramWord);
+                    if (characterAbility === 'anagram_reveal' && puzzle.answer) {
+                        const revealIndex = Math.floor(Math.random() * puzzle.answer.length); const revealChar = puzzle.answer[revealIndex];
+                        setTimeout(() => showMessage(`Agatha's Insight: The letter '${revealChar}' is in position ${revealIndex + 1}.`), 100);
+                    } break;
+                case 'Info': requiresTextInput = false; break;
+            }
+            const gridSubmitContainer = document.getElementById('grid-submit-container');
+            if (gridSubmitContainer) gridSubmitContainer.innerHTML = '';
+            if (requiresGridSubmit) {
+                inputAreaDiv.style.display = 'none';
+                if (gridSubmitContainer) {
+                    const gridSubmitButton = document.createElement('button'); gridSubmitButton.className = 'game-button';
+                    gridSubmitButton.textContent = 'Submit Grid'; gridSubmitButton.onclick = checkAnswer;
+                    gridSubmitContainer.appendChild(gridSubmitButton);
+                }
+            } else {
+                inputAreaDiv.style.display = requiresTextInput ? 'flex' : 'none';
+                if (requiresTextInput) { puzzleInput.value = ''; puzzleInput.disabled = false; setTimeout(() => puzzleInput.focus(), 0); }
+            }
+        }
+
+        /** Updated checkAnswer to remove Magic Square */
+        function checkAnswer() { /* ... (same logic as v25) ... */
+            if (!currentPuzzle || currentPuzzle.solved) return;
+            let playerInput = ''; let normalizedPlayerAnswer = ''; let normalizedCorrectAnswer = ''; let isCorrect = false;
+            const normalizeTypes = ['Riddle', 'Anagram', 'Cipher', 'Liar', 'Sequence', 'LogicGrid']; // Added LogicGrid
+            const shouldNormalize = normalizeTypes.includes(currentPuzzle.type) && typeof currentPuzzle.answer === 'string';
+            switch (currentPuzzle.type) {
+                // Removed MagicSquare case
+                default: // Handles text-based inputs including LogicGrid's question
+                    playerInput = puzzleInput.value;
+                    if (!playerInput.trim()) { showMessage("Please enter an answer."); return; }
+                    if (shouldNormalize) {
+                        normalizedPlayerAnswer = normalizeAnswer(playerInput); normalizedCorrectAnswer = normalizeAnswer(currentPuzzle.answer);
+                        isCorrect = (normalizedPlayerAnswer === normalizedCorrectAnswer); console.log(`Normalized Check: '${normalizedPlayerAnswer}' vs '${normalizedCorrectAnswer}'`);
+                    } else {
+                        normalizedPlayerAnswer = playerInput.trim().toLowerCase(); normalizedCorrectAnswer = String(currentPuzzle.answer).toLowerCase();
+                        isCorrect = (normalizedPlayerAnswer === normalizedCorrectAnswer); console.log(`Direct Check: '${normalizedPlayerAnswer}' vs '${normalizedCorrectAnswer}'`);
+                    } break;
+            }
+            console.log(`Checking answer for ${currentPuzzle.type}: Input='${playerInput}' -> Correct: ${isCorrect}`);
+            if (isCorrect) { showMessage("Correct!"); puzzleSolved(); }
+            else {
+                lives--; livesLeftSpan.textContent = lives; console.log(`Incorrect answer. Lives remaining: ${lives}`);
+                if (lives <= 0) { showMessage("That was your last chance..."); gameOver(false, 'lives'); }
+                else { showMessage(`Incorrect! You have ${lives} ${lives === 1 ? 'life' : 'lives'} left.`); puzzleInput.value = ''; } // Clear text input on wrong answer
+            }
+        }
+
+        /** New function for Jasper's Double or Nothing ability */
+        function useDoubleOrNothing() { /* ... (same logic as v27) ... */
+            if (jasperAbilityUsed) { showMessage("You can only use Double or Nothing once per game!"); return; }
+            if (!currentPuzzle || currentPuzzle.solved) { showMessage("No active puzzle to gamble on!"); return; }
+            console.log("Using Double or Nothing!");
+            jasperAbilityUsed = true;
+            const donButton = document.getElementById('don-button');
+            if (donButton) { donButton.disabled = true; donButton.textContent = 'DoN Used'; }
+            let playerInput = ''; let normalizedPlayerAnswer = ''; let normalizedCorrectAnswer = ''; let isCorrect = false;
+            const normalizeTypes = ['Riddle', 'Anagram', 'Cipher', 'Liar', 'Sequence', 'LogicGrid'];
+            const shouldNormalize = normalizeTypes.includes(currentPuzzle.type) && typeof currentPuzzle.answer === 'string';
+            if (inputAreaDiv.style.display !== 'none') {
+                playerInput = puzzleInput.value;
+                if (!playerInput.trim()) {
+                    showMessage("Enter an answer before gambling!");
+                    jasperAbilityUsed = false; if (donButton) donButton.disabled = false; donButton.textContent = 'Double or Nothing!'; return;
+                }
+                if (shouldNormalize) { normalizedPlayerAnswer = normalizeAnswer(playerInput); normalizedCorrectAnswer = normalizeAnswer(currentPuzzle.answer); isCorrect = (normalizedPlayerAnswer === normalizedCorrectAnswer); }
+                else { normalizedPlayerAnswer = playerInput.trim().toLowerCase(); normalizedCorrectAnswer = String(currentPuzzle.answer).toLowerCase(); isCorrect = (normalizedPlayerAnswer === normalizedCorrectAnswer); }
+            } else { showMessage("Double or Nothing cannot be used on this type of puzzle."); jasperAbilityUsed = false; if (donButton) donButton.disabled = false; donButton.textContent = 'Double or Nothing!'; return; }
+            console.log(`Double or Nothing Check: Input='${playerInput}' -> Correct: ${isCorrect}`);
+            if (isCorrect) {
+                if (timeLeft > 0) { timeLeft += 60; console.log("DoN Correct! +60 seconds"); showMessage("Double or Nothing: Correct! +1 Minute!"); updateTimerDisplay(); }
+                else { showMessage("Double or Nothing: Correct! (No time bonus in Easy mode)"); }
+                puzzleSolved();
+            } else {
+                if (timeLeft > 0) { timeLeft -= 120; console.log("DoN Incorrect! -120 seconds"); showMessage("Double or Nothing: Wrong! -2 Minutes!"); if (timeLeft < 0) timeLeft = 0; updateTimerDisplay(); if (timeLeft === 0) { gameOver(false, 'time'); return; } }
+                else { showMessage("Double or Nothing: Wrong! (No time penalty in Easy mode)"); }
+                lives--; livesLeftSpan.textContent = lives; console.log(`Incorrect answer (DoN). Lives remaining: ${lives}`);
+                if (lives <= 0) { gameOver(false, 'lives'); }
+                else { puzzleInput.value = ''; }
+            }
+        }
+
+
+        function puzzleSolved() { /* ... (same logic as v13) ... */
+            if (!currentPuzzle || currentPuzzle.solved) return;
+            console.log(`Puzzle ${currentPuzzle.id} solved!`);
+            solvedPuzzleIds.push(currentPuzzle.id);
+            currentPuzzle.solved = true;
+            puzzlesSolvedCount++;
+            console.log(`Solved Count: ${puzzlesSolvedCount} / ${puzzlesNeededToWin}`);
+            if (puzzlesSolvedCount >= puzzlesNeededToWin) {
+                gameOver(true);
+            } else {
+                showStoryScreen(); // Go back to the story screen for the current room
+            }
+        }
+
+        /** Updated useHint for Silas's new ability */
+        function useHint() { /* ... (same logic as v25) ... */
+            let canUseHint = hintsLeft > 0;
+            let isFreeHint = false;
+            if (characterAbility === 'free_first_hint' && !firstHintUsed) {
+                canUseHint = true; isFreeHint = true;
+            }
+            if (canUseHint && currentPuzzle) {
+                let hintText = currentPuzzle.hint || "No specific hint available.";
+                if (characterAbility === 'logic_grid_hint' && currentPuzzle.type === 'LogicGrid' && currentPuzzle.strongHint) {
+                    hintText = currentPuzzle.strongHint; console.log("Silas' stronger hint used.");
+                }
+                if (!isFreeHint) {
+                    hintsLeft--; hintsLeftSpan.textContent = hintsLeft;
+                } else {
+                    firstHintUsed = true; console.log("Beatrice's free hint used.");
+                    hintText += " (This hint was free!)";
+                }
+                console.log(`Hint used for puzzle ${currentPuzzle.id}. ${hintsLeft} remaining (after use).`);
+                showMessage(`Hint: ${hintText}`);
+                if (hintsLeft <= 0 && !(characterAbility === 'free_first_hint' && !firstHintUsed)) {
+                    hintButton.disabled = true; console.log("No hints left (or free hint used), disabling button.");
+                }
+            } else if (!currentPuzzle) { showMessage("No puzzle loaded to get a hint for!"); }
+            else { showMessage("No hints remaining!"); hintButton.disabled = true; }
+        }
+
+        function gameOver(didWin, reason = null) { /* ... (same logic as v19) ... */
+            clearInterval(timerInterval); timerInterval = null;
+            console.log(`Game Over. Player ${didWin ? 'won' : 'lost'}. Reason: ${reason}`);
+            if (didWin) {
+                endTitle.textContent = "You Escaped!";
+                let winMsg = `Congratulations, ${selectedCharacter}! You solved ${puzzlesSolvedCount} puzzles and found the hidden exit!`;
+                switch (selectedCharacter) {
+                    case 'Eleanor Vance': winMsg = `Incredible, Eleanor! Your historical knowledge and sharp wit navigated the Architect's Labyrinth. You've escaped, perhaps with clues to even older secrets!`; break;
+                    case 'Silas Blackwood': winMsg = `Masterful work, Silas! The mansion's locks and ciphers were no match for your skills. You're free, leaving the 'Gilded Cage' behind you.`; break;
+                    case 'Arthur Pendelton': winMsg = `Huzzah, Arthur! Another daring escape to add to your legend! The mansion tested you, but your adventurous spirit prevailed! Time for a celebratory feast!`; break;
+                    case 'Beatrice Holloway': winMsg = `You've cracked the case, Beatrice! By solving the mansion's puzzles, you've escaped its grasp and likely uncovered the scoop of the century!`; break;
+                    case 'Jasper Thorne': winMsg = `You beat the house, Jasper! Against the odds, your calculated risks and sharp mind won the ultimate jackpot: freedom!`; break;
+                    case 'Agatha Croft': winMsg = `A worthy challenge, Agatha, but ultimately solvable! You've proven your puzzle mastery once again and escaped the designer's intricate trap.`; break;
+                }
+                endMessage.textContent = winMsg;
+            } else {
+                endTitle.textContent = "Detained!";
+                let loseMsg = "";
+                const failureReason = reason === 'lives' ? "Too many mistakes attracted unwanted attention." : reason === 'time' ? "You took too long, alerting the authorities." : "Your struggles attracted unwanted attention.";
+                switch (selectedCharacter) {
+                    case 'Eleanor Vance': loseMsg = `Lost in thought, Eleanor? ${failureReason} The police arrived, finding you engrossed in texts, not escape routes. You're detained.`; break;
+                    case 'Silas Blackwood': loseMsg = `Even the best locksmiths slip up, Silas. ${failureReason} The authorities weren't impressed by your tools, only your trespassing. You're detained.`; break;
+                    case 'Arthur Pendelton': loseMsg = `Not every adventure ends in glory, Arthur. ${failureReason} This time, the only treasure you found was a pair of handcuffs. You're detained.`; break;
+                    case 'Beatrice Holloway': loseMsg = `You got too close to the story, Beatrice. ${failureReason} Now you're part of the police report, not writing it. You're detained.`; break;
+                    case 'Jasper Thorne': loseMsg = `Looks like your luck ran out, Jasper. ${failureReason} The house always wins... eventually. The police escort you out. You're detained.`; break;
+                    case 'Agatha Croft': loseMsg = `A rare miscalculation, Agatha? ${failureReason} Even the finest puzzle master can be stumped by flashing blue lights. You're detained.`; break;
+                    default: loseMsg = `${failureReason} Before ${selectedCharacter} could escape, the police arrived and detained you for questioning.`; break;
+                }
+                endMessage.textContent = loseMsg;
+            }
+            showScreen(endScreen);
+        }
+
+        function restartGame() { /* ... (same logic as v19) ... */
+            console.log("Restarting game.");
+            clearInterval(timerInterval); timerInterval = null;
+            currentDifficulty = null; currentDifficultyLevel = 0;
+            selectedCharacter = null; characterAbility = null; characterData = null;
+            currentPuzzle = null; firstHintUsed = false;
+            puzzlesSolvedCount = 0; puzzlesNeededToWin = 3;
+            solvedPuzzleIds = [];
+            currentRoomId = 'entranceHall';
+            lives = STARTING_LIVES; // Reset lives
+            jasperAbilityUsed = false; // Reset Jasper's ability
+            timeLeft = 0; hintsLeft = 0;
+            gamePuzzles = []; // Clear the game puzzle pool
+            updateTimerDisplay();
+            if (livesLeftSpan) livesLeftSpan.textContent = lives;
+            showScreen(setupScreen);
+        }
+        function showMessage(text) { /* ... (same logic as v17) ... */
+            if (messageBox.timeoutId) { clearTimeout(messageBox.timeoutId); }
+            messageBox.textContent = text;
+            messageBox.classList.remove('hidden'); messageBox.classList.add('visible');
+            messageBox.timeoutId = setTimeout(() => {
+                messageBox.classList.remove('visible'); messageBox.classList.add('hidden');
+                messageBox.timeoutId = null;
+            }, 4000);
+        }
+
+        // --- Initial Setup ---
+        window.onload = () => { /* ... (same logic as v19) ... */
+            puzzleInput.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') { event.preventDefault(); checkAnswer(); }
+            });
+            showScreen(setupScreen);
+            messageBox.classList.add('hidden');
+            console.log("Game loaded. Setup screen visible. Enter key listeners updated.");
+        };
+
+    </script>
+
+</body>
+
+</html>

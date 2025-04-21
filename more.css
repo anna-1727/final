@@ -1,0 +1,98 @@
+body {
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: rgb(238, 255, 242); /* deep dark green */
+    color: black; /* light pink text */
+    padding: 2rem;
+    line-height: 1.6;
+  }
+  
+  h1 {
+    text-align: center;
+    color: darkgreen; /* brighter pink for pop */
+    margin-bottom: 2rem;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-decoration: dotted;
+  }
+  
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  li {
+    margin-bottom: 1.5rem;
+    background-color: pink; /* medium-dark green card bg */
+    padding: 1rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px darkgrey; /* pink glow */
+  }
+  
+  li > ol {
+    margin-top: 0.5rem;
+    padding-left: 1.5rem;
+    list-style-type: decimal;
+    color: #ffd6eb; /* lightest pink for nested lists */
+  }
+  
+  li > ol > li {
+    background-color: transparent;
+    margin-bottom: 0.3rem;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  
+  li:hover {
+    background-color: rgba(0, 100, 0, 0.60); /* slightly brighter green on hover */
+    transform: scale(1.02);
+    transition: 0.2s ease;
+  }
+
+  .header-container {
+    position: relative;
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  
+  .header-img {
+    width: 100%;
+    max-height: 250px;
+    object-fit: cover;
+    filter: brightness(60%);
+    border-radius: 15px;
+  }
+  
+  .header-container h1 {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #ffe6f0;
+    font-size: 3rem;
+    text-shadow: 2px 2px 5px #0f2d1d;
+  }
+  
+.back-link-container{
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    display: flex;
+    gap: 20px;
+    z-index: 1000;
+}
+
+  .back-link {
+   
+    text-decoration: none;
+    font-weight: bold;
+    color: rgb(0, 0, 0);
+    background-color: pink;
+    padding: 3px 4px;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .back-link:hover {
+    color: #333;
+    background-color: rgba(255, 192, 203, 0.75);
+  }
